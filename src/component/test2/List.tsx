@@ -1,12 +1,16 @@
 import { FC, memo, useMemo } from "react";
 
-type ListProps = { item: any; search: any[] };
+type ListProps = {
+  item: any;
+  search: any[];
+};
 
-const List: FC<ListProps> = ({ item, search }) => {
+const List: FC<ListProps> = ({ item, search}) => {
   const color = useMemo(() => {
     const isSearch = search.some((s) => s.id === item.id);
     const isParent = search.some((s) => s.parentId === item.id);
-    return isSearch ? "red" : isParent ? "blue" : "black";
+    const isChildren = search.some((s) => s.id === item.parentId)
+    return isSearch ? "blue" : isParent ? "pink": isChildren ? "red" : "black";
   }, [search]);
 
   return (

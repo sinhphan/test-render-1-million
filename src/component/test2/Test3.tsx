@@ -3,22 +3,22 @@ import List from "./List";
 import LazyLoad from "react-lazyload";
 
 const Test3 = () => {
-  const [list, setList] = useState([]);
+  const [list, setList] = useState<any[]>([]);
   const [search, setSearch] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const loader = useRef(null);
   const timerRef = useRef<any>(null);
 
   const fetchData = async (limit = 200, page = 1) => {
-    const response = await fetch(`http://localhost:3000/categories?limit=${limit}&page=${page}`);
+    const response = await fetch(`http://localhost:1111/categories?limit=${limit}&page=${page}`);
     const data = await response.json();
-    setList((pre) => {
+    setList((pre: any) => {
       return [...pre, ...data];
     });
   };
 
   const searchData = async (search: string) => {
-    const response = await fetch(`http://localhost:3000/categories/search`, {
+    const response = await fetch(`http://localhost:1111/categories/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,11 @@ const Test3 = () => {
           list.map((item: any) => {
             return (
               <LazyLoad key={item.id} overflow>
-                <List key={item.id} item={item} search={search} />
+                <List
+                  key={item.id}
+                  item={item}
+                  search={search}
+                />
               </LazyLoad>
             );
           })}
