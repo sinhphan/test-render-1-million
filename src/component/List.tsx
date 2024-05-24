@@ -54,6 +54,7 @@ const ListItem = memo(
 
       return some ? "red" : isParent ? "blue" : isChildren ? "pink" : "black";
     }, [search, isParent]);
+    
     const getData = async () => {
       const categories = await db.categories
         .where("parent_id")
@@ -73,7 +74,7 @@ const ListItem = memo(
           <ul>
             {children.map((child, index) => {
               return (
-                <LazyLoad height={3000} key={item.id} placeholder={<>loading</>}>
+                <LazyLoad key={item.id} placeholder={<>loading</>}>
                   <ListItem
                     item={child}
                     key={child.id}
