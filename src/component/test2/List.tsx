@@ -5,12 +5,25 @@ type ListProps = {
   search: any[];
 };
 
-const List: FC<ListProps> = ({ item, search}) => {
+const List: FC<ListProps> = ({ item, search }) => {
   const color = useMemo(() => {
     const isSearch = search.some((s) => s.id === item.id);
-    const isParent = search.some((s) => s.parentId === item.id);
-    const isChildren = search.some((s) => s.id === item.parentId)
-    return isSearch ? "blue" : isParent ? "pink": isChildren ? "red" : "black";
+    
+    const isParent = search.some((s) => {
+      const path = s.path?.split(",");
+      const indexOf = path.indexOf(`${item.id}`);
+      const res = indexOf != -1 && indexOf < path.indexOf(`${s.id}`);
+      return s.parentId === item.id || res;
+    });
+
+    const isChildren = search.some((s) => {
+      const path = item.path?.split(",");
+      const indexOf = path.indexOf(`${s.id}`);
+      const res = indexOf != -1 && indexOf < path.indexOf(`${item.id}`);
+      return !isParent && (s.id === item.parentId || res);
+    });
+
+    return isSearch ? "blue" : isParent ? "pink" : isChildren ? "red" : "black";
   }, [search]);
 
   return (
