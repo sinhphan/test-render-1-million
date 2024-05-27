@@ -1,56 +1,27 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import List from "./List";
-import LazyLoad from "react-lazyload";
+import { Pagination } from "antd";
 
 const Test3 = () => {
-  const [list, setList] = useState<any[]>([]);
-  const [search, setSearch] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
-  const loader = useRef(null);
+  const [search, setSearch] = useState<string | undefined>(undefined);
+  const [res, setRes] = useState<{ total: number; page: number; data: any[] }>({
+    total: 0,
+    page: 1,
+    data: [],
+  });
   const timerRef = useRef<any>(null);
 
-  const fetchData = async (limit = 200, page = 1) => {
-    const response = await fetch(`http://localhost:1111/categories?limit=${limit}&page=${page}`);
+  const fetchData = async (page = 1) => {
+    const response = await fetch(`http://localhost:1111/categories?limit=15&page=${page}&keyword=${search}`);
     const data = await response.json();
-    setList((pre: any) => {
-      return [...pre, ...data];
-    });
+    setRes(data);
   };
 
-  const searchData = async (search: string) => {
-    const response = await fetch(`http://localhost:1111/categories/search`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ search }),
-    });
-    const data = await response.json();
-    setSearch(data);
-  };
-
-  const handleObserver = useCallback((entries: any) => {
-    const target = entries[0];
-    if (target.isIntersecting) {
-      setPage((prev) => prev + 1);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchData(200, page);
-  }, [page]);
-
-  useEffect(() => {
-    var options = {
-      root: null,
-      rootMargin: "20px",
-      threshold: 1.0,
-    };
-    const observer = new IntersectionObserver(handleObserver, options);
-    if (loader.current) {
-      observer.observe(loader.current);
+    if (search) {
+      fetchData();
     }
-  }, [handleObserver]);
+  }, [search]);
 
   return (
     <div>
@@ -65,7 +36,7 @@ const Test3 = () => {
           onChange={(e) => {
             timerRef.current && clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
-              searchData(e.target.value);
+              setSearch(e.target.value);
             }, 400);
           }}
         />
@@ -75,21 +46,23 @@ const Test3 = () => {
           paddingTop: "50px",
         }}
       ></div>
-      <div style={{ height: "600px", overflow: "auto" }}>
-        {list &&
-          list.map((item: any) => {
-            return (
-              <LazyLoad key={item.id} overflow>
-                <List
-                  key={item.id}
-                  item={item}
-                  search={search}
-                />
-              </LazyLoad>
-            );
-          })}
-        <div ref={loader}>
-          <h2>Loading More...</h2>
+      <div>
+        <div style={{ padding: "10px" }}>
+          <Pagination
+            defaultCurrent={1}
+            total={res.total}
+            pageSize={30}
+            onChange={(page) => {
+              fetchData(page);
+            }}
+            current={res.page}
+          />
+        </div>
+        <div>
+          {res.data.length > 0 &&
+            res.data.map((item: any) => {
+              return <List key={item.id} item={item} search={search} />;
+            })}
         </div>
       </div>
     </div>
