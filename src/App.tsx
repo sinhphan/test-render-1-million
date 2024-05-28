@@ -1,9 +1,9 @@
 import "./App.css";
-import Test3 from "./component/test2/Test3";
+import TestPagination from "./component/test/testPagination";
 function App() {
   return (
     <div>
-      <Test3 />
+      <TestPagination/>
     </div>
   );
 }
